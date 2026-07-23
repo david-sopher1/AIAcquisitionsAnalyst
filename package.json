@@ -15,8 +15,9 @@
     "pg": "^8.12.0"
   },
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build": "npm run build -w @dealengine/shared && npm run build -w @dealengine/compliance -w @dealengine/scoring -w @dealengine/underwriting -w @dealengine/integrations && npm run build -w @dealengine/ai && npm run build -w @dealengine/core && npm run build -w @dealengine/api -w @dealengine/workers",
+    "build:dashboard": "npm run build -w @dealengine/dashboard",
+    "typecheck": "npm run build",
     "migrate": "node scripts/migrate.mjs",
     "seed": "node scripts/seed.mjs",
     "dev:api": "npm run dev -w @dealengine/api",
