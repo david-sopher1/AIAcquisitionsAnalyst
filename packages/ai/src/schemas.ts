@@ -7,7 +7,7 @@ export const CONVERSATION_TURN_SCHEMA = {
     reply: {
       type: "string",
       description:
-        "The SMS reply to send to the seller. Short, human, per the style rules. Empty string ONLY when no reply should be sent at all.",
+        "ONLY the exact SMS text to send the seller — nothing else. No reasoning, no notes, no labels like 'Seller:' or 'reply:', no surrounding quotes. Write it exactly as it should appear on their phone: one short human message, at most 1-3 sentences. Empty string ONLY when no reply should be sent at all.",
     },
     intent: {
       type: "string",

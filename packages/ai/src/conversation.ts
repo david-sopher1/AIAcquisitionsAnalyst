@@ -62,42 +62,88 @@ export async function generateConversationTurn(params: {
     });
   }
 
-  const response = await client.messages.create({
-    model,
-    max_tokens: 2_000,
-    thinking: { type: "adaptive" },
-    system: [
-      {
-        type: "text",
-        text: CONVERSATION_SYSTEM_PROMPT,
-        cache_control: { type: "ephemeral" },
-      },
-    ],
-    messages: turns,
-    output_config: {
-      format: { type: "json_schema", schema: CONVERSATION_TURN_SCHEMA },
-    },
-  } as never);
+  // Two attempts. A malformed/degenerate generation must never crash the
+  // handler or send garbage — on repeated failure we return a safe result
+  // that sends NOTHING and escalates to the human owner.
+  let lastErr: unknown = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await client.messages.create({
+        model,
+        max_tokens: 4_000, // headroom so JSON can't truncate mid-object
+        // Thinking OFF for this call: short SMS + extraction doesn't need deep
+        // reasoning, and adaptive thinking + JSON structured output was
+        // producing degraded/doubled text. The system prompt instructs
+        // final-answer-only, per Anthropic's Opus 4.8 guidance.
+        thinking: { type: "disabled" },
+        system: [
+          {
+            type: "text",
+            text: CONVERSATION_SYSTEM_PROMPT,
+            cache_control: { type: "ephemeral" },
+          },
+        ],
+        messages: turns,
+        output_config: {
+          format: { type: "json_schema", schema: CONVERSATION_TURN_SCHEMA },
+        },
+      } as never);
 
-  const textBlock = (response.content as Array<{ type: string; text?: string }>).find(
-    (b) => b.type === "text",
-  );
-  if (!textBlock?.text) {
-    throw new Error(`Conversation model returned no text (stop_reason=${response.stop_reason})`);
+      if (response.stop_reason === "max_tokens") {
+        throw new Error("generation hit max_tokens (likely degenerate) — retrying");
+      }
+
+      const textBlock = (response.content as Array<{ type: string; text?: string }>).find(
+        (b) => b.type === "text",
+      );
+      if (!textBlock?.text) {
+        throw new Error(`no text block (stop_reason=${response.stop_reason})`);
+      }
+
+      const parsed = JSON.parse(textBlock.text) as ConversationTurnOutput;
+
+      // Sanity guard: a legit SMS is short. Anything huge or containing our
+      // own field labels is a leaked-scratchpad generation — reject and retry.
+      const reply = (parsed.reply ?? "").trim();
+      if (reply.length > 480 || /\b(reply:|seller:|plan:|redirect to)\b/i.test(reply)) {
+        throw new Error("reply failed sanity check (too long or leaked reasoning)");
+      }
+      parsed.reply = reply;
+
+      const modelMeta = {
+        model,
+        attempt,
+        input_tokens: response.usage.input_tokens,
+        output_tokens: response.usage.output_tokens,
+        cache_read_input_tokens: (response.usage as { cache_read_input_tokens?: number })
+          .cache_read_input_tokens,
+        latency_ms: Date.now() - started,
+        stop_reason: response.stop_reason,
+      };
+      logger.debug({ modelMeta, intent: parsed.intent }, "conversation turn generated");
+      return { ...parsed, modelMeta };
+    } catch (err) {
+      lastErr = err;
+      logger.warn({ err, attempt }, "conversation turn attempt failed");
+    }
   }
 
-  const parsed = JSON.parse(textBlock.text) as ConversationTurnOutput;
-
-  const modelMeta = {
-    model,
-    input_tokens: response.usage.input_tokens,
-    output_tokens: response.usage.output_tokens,
-    cache_read_input_tokens: (response.usage as { cache_read_input_tokens?: number })
-      .cache_read_input_tokens,
-    latency_ms: Date.now() - started,
-    stop_reason: response.stop_reason,
+  // Both attempts failed. Fail safe: send nothing, escalate to the human.
+  logger.error({ err: lastErr }, "conversation generation failed twice — escalating to human");
+  return {
+    reply: "",
+    intent: "other",
+    escalate: true,
+    end_conversation: false,
+    qualification: {
+      motivation_level: null, motivation_notes: null, reason_for_selling: null,
+      timeline_weeks: null, asking_price_dollars: null, price_flexible: null,
+      condition_notes: null, repairs_needed: null, repair_level_guess: null,
+      occupancy: null, mortgage_status: null, mortgage_balance_dollars: null,
+      best_contact_method: null, best_contact_time: null, callback_at_iso: null,
+      new_objections: [],
+    },
+    conversation_summary: "AI could not generate a reliable reply — handed to human.",
+    modelMeta: { model, failed: true, latency_ms: Date.now() - started },
   };
-
-  logger.debug({ modelMeta, intent: parsed.intent }, "conversation turn generated");
-  return { ...parsed, modelMeta };
 }

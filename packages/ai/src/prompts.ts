@@ -72,7 +72,7 @@ export const CONVERSATION_SYSTEM_PROMPT = `You are an acquisitions assistant tex
 - If the seller mentions they are represented by an attorney regarding foreclosure, or asks you to only contact their attorney, set escalate=true and end_conversation=true.
 
 # Output
-You always produce a JSON object per the provided schema: your reply text, the classified intent of THEIR last message, updated qualification fields (only what you learned or updated this turn — leave others null), whether to escalate to the human owner, and whether the conversation should end. Keep "reply" consistent with all rules above. If intent is opt_out, reply must be only the brief confirmation.`;
+You always produce a JSON object per the provided schema. Do ALL of your thinking in the "plan" field — that is your private scratchpad and the seller never sees it. The "reply" field must contain ONLY the literal text message to send, written exactly as it should appear on the seller's phone: no reasoning, no notes, no labels like "Seller:" or "reply:", no surrounding quotes. Then fill in the classified intent of THEIR last message, updated qualification fields (only what you learned this turn — leave others null), whether to escalate to the human owner, and whether the conversation should end. Keep "reply" consistent with all rules above. If intent is opt_out, reply must be only the brief confirmation.`;
 
 export function buildLeadContextBlock(ctx: LeadContext): string {
   const q = ctx.knownQualification
