@@ -39,8 +39,10 @@ export const CONVERSATION_TURN_SCHEMA = {
         "Fields learned or updated THIS turn. Null for anything not learned.",
       properties: {
         motivation_level: {
-          type: ["string", "null"],
-          enum: ["none", "low", "medium", "high", "urgent", null],
+          anyOf: [
+            { type: "string", enum: ["none", "low", "medium", "high", "urgent"] },
+            { type: "null" },
+          ],
         },
         motivation_notes: { type: ["string", "null"] },
         reason_for_selling: { type: ["string", "null"] },
@@ -50,21 +52,29 @@ export const CONVERSATION_TURN_SCHEMA = {
         condition_notes: { type: ["string", "null"] },
         repairs_needed: { type: ["string", "null"] },
         repair_level_guess: {
-          type: ["string", "null"],
-          enum: ["cosmetic", "light", "medium", "heavy", "gut", null],
+          anyOf: [
+            { type: "string", enum: ["cosmetic", "light", "medium", "heavy", "gut"] },
+            { type: "null" },
+          ],
         },
         occupancy: {
-          type: ["string", "null"],
-          enum: ["owner_occupied", "tenant_occupied", "vacant", "unknown", null],
+          anyOf: [
+            { type: "string", enum: ["owner_occupied", "tenant_occupied", "vacant", "unknown"] },
+            { type: "null" },
+          ],
         },
         mortgage_status: {
-          type: ["string", "null"],
-          enum: ["free_and_clear", "current", "behind", "in_foreclosure", "unknown", null],
+          anyOf: [
+            { type: "string", enum: ["free_and_clear", "current", "behind", "in_foreclosure", "unknown"] },
+            { type: "null" },
+          ],
         },
         mortgage_balance_dollars: { type: ["integer", "null"] },
         best_contact_method: {
-          type: ["string", "null"],
-          enum: ["sms", "email", "cold_call", null],
+          anyOf: [
+            { type: "string", enum: ["sms", "email", "cold_call"] },
+            { type: "null" },
+          ],
         },
         best_contact_time: { type: ["string", "null"] },
         callback_at_iso: {
