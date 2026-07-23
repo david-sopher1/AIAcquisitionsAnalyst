@@ -1,0 +1,27 @@
+{
+  "name": "@dealengine/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/server.ts",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@dealengine/ai": "1.0.0",
+    "@dealengine/compliance": "1.0.0",
+    "@dealengine/core": "1.0.0",
+    "@dealengine/integrations": "1.0.0",
+    "@dealengine/shared": "1.0.0",
+    "@fastify/formbody": "^7.4.0",
+    "@temporalio/client": "^1.11.1",
+    "fastify": "^4.28.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  }
+}

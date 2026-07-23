@@ -1,0 +1,31 @@
+{
+  "name": "@dealengine/workers",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/worker.ts",
+    "start": "node dist/worker.js",
+    "schedules": "tsx src/schedules.ts"
+  },
+  "dependencies": {
+    "@dealengine/ai": "1.0.0",
+    "@dealengine/compliance": "1.0.0",
+    "@dealengine/core": "1.0.0",
+    "@dealengine/integrations": "1.0.0",
+    "@dealengine/scoring": "1.0.0",
+    "@dealengine/shared": "1.0.0",
+    "@dealengine/underwriting": "1.0.0",
+    "@temporalio/activity": "^1.11.1",
+    "@temporalio/client": "^1.11.1",
+    "@temporalio/worker": "^1.11.1",
+    "@temporalio/workflow": "^1.11.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  }
+}

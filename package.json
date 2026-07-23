@@ -1,0 +1,27 @@
+{
+  "name": "dealengine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DealEngine — AI acquisitions platform for off-market residential real estate",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "pg": "^8.12.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "migrate": "node scripts/migrate.mjs",
+    "seed": "node scripts/seed.mjs",
+    "dev:api": "npm run dev -w @dealengine/api",
+    "dev:workers": "npm run dev -w @dealengine/workers",
+    "dev:dashboard": "npm run dev -w @dealengine/dashboard",
+    "test": "npm run test --workspaces --if-present"
+  }
+}

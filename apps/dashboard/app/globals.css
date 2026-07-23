@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-950 text-slate-200 antialiased;
+}
+
+/* Slim, dark scrollbars to match the data-dense aesthetic */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #334155;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #475569;
+}
+
+/* Recharts dark-mode polish */
+.recharts-cartesian-axis-tick text {
+  fill: #64748b;
+  font-size: 11px;
+}
+
+.recharts-tooltip-cursor {
+  fill: rgba(148, 163, 184, 0.06);
+}
+
+.recharts-legend-item-text {
+  color: #94a3b8 !important;
+  font-size: 12px;
+}
